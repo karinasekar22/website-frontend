@@ -1,0 +1,53 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Diagnostic reports (next.js / node)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Directory for instrumented code coverage builds
+coverage
+*.lcov
+
+# Optional npm cache directory
+.npm
+
+# Output / Hasil Build (Sangat Penting)
+dist
+dist-ssr
+*.local
+
+# Dependencies (Sangat Penting)
+node_modules
+/jspm_packages
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Environtment Variables (Sangat Penting untuk Keamanan)
+.env
+.env.local
+.env.*.local
+
+# Editor directories and files (Optional tapi disarankan)
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
