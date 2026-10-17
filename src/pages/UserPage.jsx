@@ -1,5 +1,4 @@
-
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from "react";
 import {
   RefreshCw,
   Plus,
@@ -9,94 +8,93 @@ import {
   UserCheck,
   UserRound,
   ShieldCheck,
-  Pencil,
   ChevronDown,
-} from 'lucide-react'
-import Swal from 'sweetalert2'
+} from "lucide-react";
+import Swal from "sweetalert2";
 
-import { addUser, getAllUsers } from '../services/userService'
-import Panel, { PanelHeading } from '../components/ui/Panel'
-import StatusBadge from '../components/ui/StatusBadge'
-import { PageTitle } from '../components/layout/Topbar'
-import '../styles/user.css'
+import { addUser, getAllUsers } from "../services/userService";
+import Panel, { PanelHeading } from "../components/ui/Panel";
+import StatusBadge from "../components/ui/StatusBadge";
+import { PageTitle } from "../components/layout/Topbar";
+import "../styles/user.css";
 
 const EMPTY_FILTERS = {
-  namaLengkap: '',
-  nomorInduk: '',
-  email: '',
-  role: '',
-  status: '',
-  orderBy: 'namaLengkap',
+  namaLengkap: "",
+  nomorInduk: "",
+  email: "",
+  role: "",
+  status: "",
+  orderBy: "namaLengkap",
   pageSize: 10,
-}
+};
 
 const EMPTY_USER = {
-  namaLengkap: '',
-  nomorInduk: '',
-  email: '',
-  role: '',
-  tanggalLahir: '',
-  angkatan: '',
-}
+  namaLengkap: "",
+  nomorInduk: "",
+  email: "",
+  role: "",
+  tanggalLahir: "",
+  angkatan: "",
+};
 
-const ROLE_OPTIONS = ['GURU', 'ADMIN', 'WALIKELAS']
-const STATUS_OPTIONS = ['ACTIVE', 'INACTIVE']
+const ROLE_OPTIONS = ["GURU", "ADMIN", "WALIKELAS"];
+const STATUS_OPTIONS = ["ACTIVE", "INACTIVE"];
 
 const ORDER_OPTIONS = [
-  { value: 'namaLengkap', label: 'Nama Lengkap' },
-  { value: 'nomorInduk', label: 'Nomor Induk' },
-  { value: 'email', label: 'Email' },
-]
+  { value: "namaLengkap", label: "Nama Lengkap" },
+  { value: "nomorInduk", label: "Nomor Induk" },
+  { value: "email", label: "Email" },
+];
 
-const PAGE_SIZE_OPTIONS = [10, 25, 50]
+const PAGE_SIZE_OPTIONS = [10, 25, 50];
 
 const FILTER_LABELS = {
-  namaLengkap: 'Nama',
-  nomorInduk: 'No. Induk',
-  email: 'Email',
-  role: 'Role',
-  status: 'Status',
-}
+  namaLengkap: "Nama",
+  nomorInduk: "No. Induk",
+  email: "Email",
+  role: "Role",
+  status: "Status",
+};
 
 const getInitials = (name) =>
-  (name || 'U')
+  (name || "U")
     .trim()
     .split(/\s+/)
     .filter(Boolean)
     .map((word) => word[0])
-    .join('')
+    .join("")
     .slice(0, 2)
-    .toUpperCase()
+    .toUpperCase();
 
 const getStatusType = (status) =>
-  status?.toUpperCase() === 'ACTIVE' ? 'hadir' : 'izin'
+  status?.toUpperCase() === "ACTIVE" ? "hadir" : "izin";
 
 const todayISO = () => {
-  const date = new Date()
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
 
-  return `${year}-${month}-${day}`
-}
+  return `${year}-${month}-${day}`;
+};
 
 const toDDMMYYYY = (isoDate) => {
-  const [year, month, day] = isoDate.split('-')
-  return `${day}-${month}-${year}`
-}
+  const [year, month, day] = isoDate.split("-");
+  return `${day}-${month}-${year}`;
+};
 
 const getRoleClass = (role) => {
   switch (role?.toUpperCase()) {
-    case 'ADMIN':
-      return 'user-role-admin'
-    case 'GURU':
-      return 'user-role-guru'
-    case 'WALIKELAS':
-      return 'user-role-walikelas'
+    case "ADMIN":
+      return "user-role-admin";
+    case "GURU":
+      return "user-role-guru";
+    case "WALIKELAS":
+      return "user-role-walikelas";
     default:
-      return 'user-role-default'
+      return "user-role-default";
   }
-}
+};
 
 function EmptyRow({ children }) {
   return (
@@ -107,24 +105,30 @@ function EmptyRow({ children }) {
             <Users size={23} />
           </div>
           <strong>{children}</strong>
-          <span>
-            Data user akan ditampilkan di tabel ini.
-          </span>
+          <span>Data user akan ditampilkan di tabel ini.</span>
         </div>
       </td>
     </tr>
-  )
+  );
 }
 
-function ModalShell({ title, description, icon: Icon, onClose, onSubmit, footer, children }) {
+function ModalShell({
+  title,
+  description,
+  icon: Icon,
+  onClose,
+  onSubmit,
+  footer,
+  children,
+}) {
   useEffect(() => {
     const onKeyDown = (event) => {
-      if (event.key === 'Escape') onClose()
-    }
+      if (event.key === "Escape") onClose();
+    };
 
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [onClose])
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onClose]);
 
   return (
     <div className="up-overlay" onMouseDown={onClose}>
@@ -162,24 +166,24 @@ function ModalShell({ title, description, icon: Icon, onClose, onSubmit, footer,
         <div className="up-modal-footer">{footer}</div>
       </form>
     </div>
-  )
+  );
 }
 
 function FilterModal({ initialValues, loading, onClose, onSubmit }) {
-  const [form, setForm] = useState(() => ({ ...initialValues }))
+  const [form, setForm] = useState(() => ({ ...initialValues }));
 
   const handleChange = (event) => {
-    const { name, value } = event.target
+    const { name, value } = event.target;
 
     setForm((previous) => ({
       ...previous,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   const handleReset = () => {
-    setForm({ ...EMPTY_FILTERS })
-  }
+    setForm({ ...EMPTY_FILTERS });
+  };
 
   return (
     <ModalShell
@@ -188,8 +192,8 @@ function FilterModal({ initialValues, loading, onClose, onSubmit }) {
       icon={Filter}
       onClose={onClose}
       onSubmit={(event) => {
-        event.preventDefault()
-        onSubmit(form)
+        event.preventDefault();
+        onSubmit(form);
       }}
       footer={
         <>
@@ -272,7 +276,7 @@ function FilterModal({ initialValues, loading, onClose, onSubmit }) {
             <option value="">Semua status</option>
             {STATUS_OPTIONS.map((status) => (
               <option key={status} value={status}>
-                {status === 'ACTIVE' ? 'Aktif' : 'Tidak Aktif'}
+                {status === "ACTIVE" ? "Aktif" : "Tidak Aktif"}
               </option>
             ))}
           </select>
@@ -280,11 +284,7 @@ function FilterModal({ initialValues, loading, onClose, onSubmit }) {
 
         <label className="up-field">
           <span>Urutkan berdasarkan</span>
-          <select
-            name="orderBy"
-            value={form.orderBy}
-            onChange={handleChange}
-          >
+          <select name="orderBy" value={form.orderBy} onChange={handleChange}>
             {ORDER_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
@@ -295,11 +295,7 @@ function FilterModal({ initialValues, loading, onClose, onSubmit }) {
 
         <label className="up-field">
           <span>Jumlah data per halaman</span>
-          <select
-            name="pageSize"
-            value={form.pageSize}
-            onChange={handleChange}
-          >
+          <select name="pageSize" value={form.pageSize} onChange={handleChange}>
             {PAGE_SIZE_OPTIONS.map((size) => (
               <option key={size} value={size}>
                 {size} data
@@ -309,41 +305,41 @@ function FilterModal({ initialValues, loading, onClose, onSubmit }) {
         </label>
       </div>
     </ModalShell>
-  )
+  );
 }
 
 function AddUserModal({ saving, onClose, onSubmit }) {
-  const [form, setForm] = useState(() => ({ ...EMPTY_USER }))
+  const [form, setForm] = useState(() => ({ ...EMPTY_USER }));
 
   const handleChange = (event) => {
-    const { name, value } = event.target
+    const { name, value } = event.target;
 
     setForm((previous) => ({
       ...previous,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   const handleSubmit = (event) => {
-    event.preventDefault()
+    event.preventDefault();
 
     const payload = {
       nomorInduk: form.nomorInduk.trim(),
       namaLengkap: form.namaLengkap.trim(),
       email: form.email.trim(),
       role: form.role,
-    }
+    };
 
     if (form.tanggalLahir) {
-      payload.tanggalLahir = toDDMMYYYY(form.tanggalLahir)
+      payload.tanggalLahir = toDDMMYYYY(form.tanggalLahir);
     }
 
     if (form.angkatan.trim()) {
-      payload.angkatan = form.angkatan.trim()
+      payload.angkatan = form.angkatan.trim();
     }
 
-    onSubmit(payload)
-  }
+    onSubmit(payload);
+  };
 
   return (
     <ModalShell
@@ -384,12 +380,16 @@ function AddUserModal({ saving, onClose, onSubmit }) {
     >
       <div className="user-form-intro">
         <ShieldCheck size={17} />
-        <span>Kolom bertanda <b>*</b> wajib diisi.</span>
+        <span>
+          Kolom bertanda <b>*</b> wajib diisi.
+        </span>
       </div>
 
       <div className="up-modal-body">
         <label className="up-field up-field-full">
-          <span>Nama Lengkap <b>*</b></span>
+          <span>
+            Nama Lengkap <b>*</b>
+          </span>
           <input
             name="namaLengkap"
             value={form.namaLengkap}
@@ -402,7 +402,9 @@ function AddUserModal({ saving, onClose, onSubmit }) {
         </label>
 
         <label className="up-field">
-          <span>Nomor Induk <b>*</b></span>
+          <span>
+            Nomor Induk <b>*</b>
+          </span>
           <input
             name="nomorInduk"
             value={form.nomorInduk}
@@ -413,7 +415,9 @@ function AddUserModal({ saving, onClose, onSubmit }) {
         </label>
 
         <label className="up-field">
-          <span>Email <b>*</b></span>
+          <span>
+            Email <b>*</b>
+          </span>
           <input
             type="email"
             name="email"
@@ -426,7 +430,9 @@ function AddUserModal({ saving, onClose, onSubmit }) {
         </label>
 
         <label className="up-field up-field-full">
-          <span>Role <b>*</b></span>
+          <span>
+            Role <b>*</b>
+          </span>
           <div className="user-select-wrap">
             <select
               name="role"
@@ -443,9 +449,7 @@ function AddUserModal({ saving, onClose, onSubmit }) {
             </select>
             <ChevronDown size={16} />
           </div>
-          <small>
-            Role menentukan akses user di dalam aplikasi.
-          </small>
+          <small>Role menentukan akses user di dalam aplikasi.</small>
         </label>
 
         <label className="up-field">
@@ -471,177 +475,167 @@ function AddUserModal({ saving, onClose, onSubmit }) {
         </label>
       </div>
     </ModalShell>
-  )
+  );
 }
 
 export default function UserPage() {
-  const [users, setUsers] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [filters, setFilters] = useState(() => ({ ...EMPTY_FILTERS }))
-  const [activeModal, setActiveModal] = useState(null)
-  const [saving, setSaving] = useState(false)
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [filters, setFilters] = useState(() => ({ ...EMPTY_FILTERS }));
+  const [activeModal, setActiveModal] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   const fetchUsers = useCallback(async (params) => {
-    setLoading(true)
-    setError('')
+    setLoading(true);
+    setError("");
 
     try {
       const payload = {
         pageNum: 1,
         pageSize: Number(params.pageSize) || 10,
-        orderBy: params.orderBy || 'namaLengkap',
-        status: params.status || '',
+        orderBy: params.orderBy || "namaLengkap",
+        status: params.status || "",
         namaLengkap: params.namaLengkap.trim(),
         nomorInduk: params.nomorInduk.trim(),
         role: params.role ? [params.role] : [],
         email: params.email.trim(),
+      };
+
+      const response = await getAllUsers(payload);
+      const result = response?.data;
+
+      if (!Array.isArray(result?.items)) {
+        throw new Error("Format respons daftar user tidak valid.");
       }
 
-      const response = await getAllUsers(payload)
-      const result = response?.data?.data ?? response?.data ?? response
-
-      const items = Array.isArray(result?.items)
-        ? result.items
-        : Array.isArray(result?.content)
-          ? result.content
-          : Array.isArray(result?.data)
-            ? result.data
-            : Array.isArray(result)
-              ? result
-              : []
-
-      setUsers(items)
+      setUsers(result.items);
     } catch (err) {
-      setError(err.message || 'Gagal mengambil data user.')
-      setUsers([])
+      setError(err.message || "Gagal mengambil data user.");
+      setUsers([]);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    fetchUsers({ ...EMPTY_FILTERS })
-  }, [fetchUsers])
+    fetchUsers({ ...EMPTY_FILTERS });
+  }, [fetchUsers]);
 
-  const closeModal = useCallback(() => setActiveModal(null), [])
+  const closeModal = useCallback(() => setActiveModal(null), []);
 
   const applyFilters = async (nextFilters) => {
     const normalizedFilters = {
       ...nextFilters,
       pageSize: Number(nextFilters.pageSize) || 10,
-    }
+    };
 
-    setFilters(normalizedFilters)
-    setActiveModal(null)
-    await fetchUsers(normalizedFilters)
-  }
+    setFilters(normalizedFilters);
+    setActiveModal(null);
+    await fetchUsers(normalizedFilters);
+  };
 
   const removeFilter = (key) => {
-    const nextFilters = { ...filters, [key]: '' }
-    setFilters(nextFilters)
-    fetchUsers(nextFilters)
-  }
+    const nextFilters = { ...filters, [key]: "" };
+    setFilters(nextFilters);
+    fetchUsers(nextFilters);
+  };
 
   const clearFilters = () => {
-    const nextFilters = { ...EMPTY_FILTERS }
-    setFilters(nextFilters)
-    fetchUsers(nextFilters)
-  }
+    const nextFilters = { ...EMPTY_FILTERS };
+    setFilters(nextFilters);
+    fetchUsers(nextFilters);
+  };
 
   const handleAddUser = async (payload) => {
-    setSaving(true)
+    setSaving(true);
 
     try {
-      await addUser(payload)
-      setActiveModal(null)
+      await addUser(payload);
+      setActiveModal(null);
 
       await Swal.fire({
-        icon: 'success',
-        title: 'User berhasil ditambahkan',
-        text: 'Data user baru sudah tersimpan.',
+        icon: "success",
+        title: "User berhasil ditambahkan",
+        text: "Data user baru sudah tersimpan.",
         timer: 2000,
         showConfirmButton: false,
-      })
+      });
 
-      await fetchUsers(filters)
+      await fetchUsers(filters);
     } catch (err) {
       await Swal.fire({
-        icon: 'error',
-        title: 'Gagal menambahkan user',
-        text: err.message || 'Terjadi kesalahan, silakan coba lagi.',
-        confirmButtonText: 'Mengerti',
-        confirmButtonColor: '#2563eb',
-      })
+        icon: "error",
+        title: "Gagal menambahkan user",
+        text: err.message || "Terjadi kesalahan, silakan coba lagi.",
+        confirmButtonText: "Mengerti",
+        confirmButtonColor: "#2563eb",
+      });
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const activeFilters = Object.keys(FILTER_LABELS).filter(
     (key) => filters[key],
-  )
+  );
 
   const activeCount = users.filter(
-    (user) => user.status?.toUpperCase() === 'ACTIVE',
-  ).length
+    (user) => user.status?.toUpperCase() === "ACTIVE",
+  ).length;
 
   const inactiveCount = users.filter(
-    (user) => user.status?.toUpperCase() === 'INACTIVE',
-  ).length
+    (user) => user.status?.toUpperCase() === "INACTIVE",
+  ).length;
 
   const renderTableBody = () => {
     if (loading && users.length === 0) {
-      return <EmptyRow>Memuat data user...</EmptyRow>
+      return <EmptyRow>Memuat data user...</EmptyRow>;
     }
 
     if (error && users.length === 0) {
-      return <EmptyRow>Data user gagal dimuat.</EmptyRow>
+      return <EmptyRow>Data user gagal dimuat.</EmptyRow>;
     }
 
     if (users.length === 0) {
-      return <EmptyRow>Belum ada data user.</EmptyRow>
+      return <EmptyRow>Belum ada data user.</EmptyRow>;
     }
 
     return users.map((user, index) => (
       <tr key={user.idUser ?? user.id ?? `${user.email}-${index}`}>
         <td>
           <div className="user-person-cell">
-            <div className="user-avatar">
-              {getInitials(user.namaLengkap)}
-            </div>
+            <div className="user-avatar">{getInitials(user.namaLengkap)}</div>
             <div className="user-person-info">
-              <strong>{user.namaLengkap || '-'}</strong>
-              <span>Nomor induk: {user.nomorInduk || '-'}</span>
+              <strong>{user.namaLengkap || "-"}</strong>
+              <span>Nomor induk: {user.nomorInduk || "-"}</span>
             </div>
           </div>
         </td>
 
         <td>
-          <span className="user-email">
-            {user.email || '-'}
-          </span>
+          <span className="user-email">{user.email || "-"}</span>
         </td>
 
         <td>
           <span className={`user-role-badge ${getRoleClass(user.role)}`}>
             <ShieldCheck size={13} />
-            {user.role || 'Tidak ada role'}
+            {user.role || "Tidak ada role"}
           </span>
         </td>
 
         <td>
           <StatusBadge type={getStatusType(user.status)}>
-            {user.status === 'ACTIVE'
-              ? 'Aktif'
-              : user.status === 'INACTIVE'
-                ? 'Tidak Aktif'
-                : user.status || 'UNKNOWN'}
+            {user.status === "ACTIVE"
+              ? "Aktif"
+              : user.status === "INACTIVE"
+                ? "Tidak Aktif"
+                : user.status || "UNKNOWN"}
           </StatusBadge>
         </td>
       </tr>
-    ))
-  }
+    ));
+  };
 
   return (
     <div className="user-page">
@@ -694,17 +688,14 @@ export default function UserPage() {
                 onClick={() => fetchUsers(filters)}
                 disabled={loading}
               >
-                <RefreshCw
-                  size={15}
-                  className={loading ? 'up-spin' : ''}
-                />
+                <RefreshCw size={15} className={loading ? "up-spin" : ""} />
                 Refresh
               </button>
 
               <button
                 type="button"
                 className="user-button user-button-secondary"
-                onClick={() => setActiveModal('filter')}
+                onClick={() => setActiveModal("filter")}
               >
                 <Filter size={15} />
                 Filter
@@ -718,7 +709,7 @@ export default function UserPage() {
               <button
                 type="button"
                 className="user-button user-button-primary"
-                onClick={() => setActiveModal('add')}
+                onClick={() => setActiveModal("add")}
               >
                 <Plus size={16} />
                 Tambah User
@@ -744,7 +735,7 @@ export default function UserPage() {
           <div>
             <strong>Semua user</strong>
             <span>
-              {loading ? 'Memuat data...' : `${users.length} data ditampilkan`}
+              {loading ? "Memuat data..." : `${users.length} data ditampilkan`}
             </span>
           </div>
 
@@ -804,16 +795,13 @@ export default function UserPage() {
             onClick={() => fetchUsers(filters)}
             disabled={loading}
           >
-            <RefreshCw
-              size={14}
-              className={loading ? 'up-spin' : ''}
-            />
+            <RefreshCw size={14} className={loading ? "up-spin" : ""} />
             Perbarui data
           </button>
         </div>
       </Panel>
 
-      {activeModal === 'filter' && (
+      {activeModal === "filter" && (
         <FilterModal
           initialValues={filters}
           loading={loading}
@@ -822,7 +810,7 @@ export default function UserPage() {
         />
       )}
 
-      {activeModal === 'add' && (
+      {activeModal === "add" && (
         <AddUserModal
           saving={saving}
           onClose={closeModal}
@@ -830,5 +818,5 @@ export default function UserPage() {
         />
       )}
     </div>
-  )
+  );
 }

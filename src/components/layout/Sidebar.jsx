@@ -114,7 +114,7 @@ export default function Sidebar({ mobileOpen, onClose }) {
 
         {otherMenus.length > 0 && (
           <>
-            <p className="nav-label second">LAINNYA</p>
+            <p className="nav-label second">SETTING</p>
 
             {otherMenus.map(({ path, label, icon: Icon, id }) => (
               <Link
